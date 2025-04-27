@@ -1,0 +1,130 @@
+@page "/"
+@inject MoviesDB.Data.MovieService MovieService
+@rendermode InteractiveServer
+
+<div class="container-fluid gradient-bg min-vh-100 py-5">
+    <!-- Search box -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-md-6">
+            <input type="text" class="form-control" placeholder="Search movies..." @bind="SearchTerm"
+                @bind:event="oninput" />
+        </div>
+    </div>
+
+    @if (FilteredMovies == null)
+    {
+        <p class="text-center"><em>Loading...</em></p>
+    }
+    else if (!FilteredMovies.Any())
+    {
+        <p class="text-center">No movies found for “@SearchTerm”.</p>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap justify-content-center">
+            @foreach (var movie in PagedMovies)
+            {
+                <div class="card movie-card m-2" style="width: 18rem;">
+                    <img src="@movie.PosterPath" class="card-img-top" alt="@movie.Title" />
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@movie.Title</h5>
+                        <p class="card-text flex-grow-1">@movie.Overview</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Release: @movie.ReleaseDate</li>
+                        <li class="list-group-item">Rating: @movie.UserRating</li>
+                        <li class="list-group-item">
+                        Genres: @(string.IsNullOrWhiteSpace(movie.Genres) || string.IsNullOrWhiteSpace(movie.Genres.Replace(",", "").Trim())
+                                    ? "Unknown"
+                                    : movie.Genres)
+                        </li>
+                    </ul>
+                </div>
+                }
+        </div>
+
+        <!-- Pagination controls -->
+        <nav aria-label="Movie page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                    <button type="button" class="page-link" @onclick="PrevPage">Previous</button>
+                </li>
+
+                @for (var p = 1; p <= TotalPages; p++)
+                {
+                    // capture loop variable
+                    var pageNum = p;
+                    <li class="page-item @(CurrentPage == pageNum ? "active" : "")">
+                        <button type="button" class="page-link" @onclick="() => GoToPage(pageNum)">
+                            @pageNum
+                        </button>
+                    </li>
+                }
+
+                <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                    <button type="button" class="page-link" @onclick="NextPage">Next</button>
+                </li>
+            </ul>
+        </nav>
+
+    }
+</div>
+
+@code {
+    private List<MoviesDB.Models.Movie>? movies;
+
+    // two-way bound search term that also resets page
+    private string _searchTerm = "";
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            if (_searchTerm == value) return;
+            _searchTerm = value;
+            CurrentPage = 1;
+        }
+    }
+
+    // pagination state
+    private int CurrentPage { get; set; } = 1;
+    private const int PageSize = 20;
+    private int TotalPages =>
+    FilteredMovies == null
+    ? 0
+    : (int)Math.Ceiling(FilteredMovies.Count() / (double)PageSize);
+
+    // filtered + paged sequences
+    private IEnumerable<MoviesDB.Models.Movie>? FilteredMovies =>
+    movies?.Where(m =>
+    string.IsNullOrWhiteSpace(SearchTerm)
+    || m.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<MoviesDB.Models.Movie>? PagedMovies =>
+    FilteredMovies?
+    .Skip((CurrentPage - 1) * PageSize)
+    .Take(PageSize);
+
+    protected override void OnInitialized()
+    {
+        movies = MovieService.GetMovies();
+    }
+
+    private void GoToPage(int page)
+    {
+        // clamp between 1 and TotalPages
+        if (page < 1) page = 1;
+        else if (page > TotalPages) page = TotalPages;
+        CurrentPage = page;
+    }
+
+    private void PrevPage()
+    {
+        if (CurrentPage > 1) CurrentPage--;
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages) CurrentPage++;
+    }
+}

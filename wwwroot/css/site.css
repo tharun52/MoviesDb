@@ -1,0 +1,27 @@
+/* gradient background animation */
+.gradient-bg {
+    background: linear-gradient(135deg, #0c2363 0%, #3a0647 100%);
+    background-size: 200% 200%;
+    animation: gradientBg 8s ease infinite;
+  }
+  
+  @keyframes gradientBg {
+    0%   { background-position:   0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position:   0% 50%; }
+  }
+  
+  /* card hover zoom + shadow */
+  .movie-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .movie-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3);
+  }
+  
+  /* fix poster aspect ratio */
+  .movie-poster {
+    width: 100%;
+    height: auto;
+  }
