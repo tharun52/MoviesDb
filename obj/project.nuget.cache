@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "AM3hd+JDoto=",
+  "dgSpecHash": "OjrpbzX/gX0=",
   "success": true,
-  "projectFilePath": "C:\\programing\\presidio\\blazorappp\\MoviesDB\\MoviesDB.csproj",
+  "projectFilePath": "C:\\programing\\presidio\\gitfinal\\MoviesDB.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\theth\\.nuget\\packages\\microsoft.data.sqlite\\9.0.4\\microsoft.data.sqlite.9.0.4.nupkg.sha512",
     "C:\\Users\\theth\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.4\\microsoft.data.sqlite.core.9.0.4.nupkg.sha512",

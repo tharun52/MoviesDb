@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\programing\\presidio\\blazorappp\\MoviesDB\\MoviesDB.csproj": {}
+    "C:\\programing\\presidio\\gitfinal\\MoviesDB.csproj": {}
   },
   "projects": {
-    "C:\\programing\\presidio\\blazorappp\\MoviesDB\\MoviesDB.csproj": {
+    "C:\\programing\\presidio\\gitfinal\\MoviesDB.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\programing\\presidio\\blazorappp\\MoviesDB\\MoviesDB.csproj",
+        "projectUniqueName": "C:\\programing\\presidio\\gitfinal\\MoviesDB.csproj",
         "projectName": "MoviesDB",
-        "projectPath": "C:\\programing\\presidio\\blazorappp\\MoviesDB\\MoviesDB.csproj",
+        "projectPath": "C:\\programing\\presidio\\gitfinal\\MoviesDB.csproj",
         "packagesPath": "C:\\Users\\theth\\.nuget\\packages\\",
-        "outputPath": "C:\\programing\\presidio\\blazorappp\\MoviesDB\\obj\\",
+        "outputPath": "C:\\programing\\presidio\\gitfinal\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

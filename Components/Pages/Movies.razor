@@ -10,6 +10,22 @@
                 @bind:event="oninput" />
         </div>
     </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-md-3">
+            <select class="form-select" @bind="sortOption">
+                <option value="title">Sort by Title</option>
+                <option value="release">Sort by Release Date</option>
+                <option value="rating">Sort by User Rating</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3 mt-2 mt-md-0">
+            <select class="form-select" @onchange="OnSortOrderChanged">
+                <option value="true">Ascending</option>
+                <option value="false">Descending</option>
+            </select>
+        </div>
+    </div>
+
 
     @if (FilteredMovies == null)
     {
@@ -34,12 +50,13 @@
                         <li class="list-group-item">Release: @movie.ReleaseDate</li>
                         <li class="list-group-item">Rating: @movie.UserRating</li>
                         <li class="list-group-item">
-                        Genres: @(string.IsNullOrWhiteSpace(movie.Genres) || string.IsNullOrWhiteSpace(movie.Genres.Replace(",", "").Trim())
-                                    ? "Unknown"
-                                    : movie.Genres)
-                        </li>
-                    </ul>
-                </div>
+                            Genres: @(string.IsNullOrWhiteSpace(movie.Genres) ||
+                                                string.IsNullOrWhiteSpace(movie.Genres.Replace(",", "").Trim())
+                                                ? "Unknown"
+                                                : movie.Genres)
+                </li>
+            </ul>
+        </div>
                 }
         </div>
 
@@ -69,11 +86,23 @@
 
     }
 </div>
-
 @code {
     private List<MoviesDB.Models.Movie>? movies;
 
-    // two-way bound search term that also resets page
+    private string _sortOption = "title";
+    private string sortOption
+    {
+        get => _sortOption;
+        set
+        {
+            if (_sortOption == value) return;
+            _sortOption = value;
+            CurrentPage = 1;
+        }
+    }
+
+    private bool sortAscending = true;
+
     private string _searchTerm = "";
     private string SearchTerm
     {
@@ -86,24 +115,28 @@
         }
     }
 
-    // pagination state
     private int CurrentPage { get; set; } = 1;
-    private const int PageSize = 20;
-    private int TotalPages =>
-    FilteredMovies == null
-    ? 0
-    : (int)Math.Ceiling(FilteredMovies.Count() / (double)PageSize);
+    private const int PageSize = 21;
 
-    // filtered + paged sequences
+    private int TotalPages =>
+        FilteredMovies == null
+        ? 0
+        : (int)Math.Ceiling(FilteredMovies.Count() / (double)PageSize);
+
     private IEnumerable<MoviesDB.Models.Movie>? FilteredMovies =>
-    movies?.Where(m =>
-    string.IsNullOrWhiteSpace(SearchTerm)
-    || m.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+        movies == null
+        ? null
+        : ApplySort(
+            movies.Where(m =>
+                string.IsNullOrWhiteSpace(SearchTerm)
+                || m.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)
+            )
+        );
 
     private IEnumerable<MoviesDB.Models.Movie>? PagedMovies =>
-    FilteredMovies?
-    .Skip((CurrentPage - 1) * PageSize)
-    .Take(PageSize);
+        FilteredMovies?
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize);
 
     protected override void OnInitialized()
     {
@@ -112,7 +145,6 @@
 
     private void GoToPage(int page)
     {
-        // clamp between 1 and TotalPages
         if (page < 1) page = 1;
         else if (page > TotalPages) page = TotalPages;
         CurrentPage = page;
@@ -126,5 +158,26 @@
     private void NextPage()
     {
         if (CurrentPage < TotalPages) CurrentPage++;
+    }
+
+    private IEnumerable<MoviesDB.Models.Movie> ApplySort(IEnumerable<MoviesDB.Models.Movie> input)
+    {
+        return sortOption switch
+        {
+            "title" => sortAscending ? input.OrderBy(m => m.Title) : input.OrderByDescending(m => m.Title),
+            "release" => sortAscending ? input.OrderBy(m => m.ReleaseDate) : input.OrderByDescending(m => m.ReleaseDate),
+            "rating" => sortAscending ? input.OrderBy(m => m.UserRating) : input.OrderByDescending(m => m.UserRating),
+            _ => input
+        };
+    }
+
+    private async Task OnSortOrderChanged(ChangeEventArgs e)
+    {
+        if (e.Value is not null && bool.TryParse(e.Value.ToString(), out var value))
+        {
+            sortAscending = value;
+            CurrentPage = 1;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 }
